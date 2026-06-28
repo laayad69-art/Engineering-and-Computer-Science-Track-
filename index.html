@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>هندسة وعلوم حاسب | المسار</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#070914;
+    --bg-1:#0c0f22;
+    --bg-2:#11152c;
+    --cyan:#3df2e0;
+    --violet:#8b5cf6;
+    --pink:#ff5fa2;
+    --ink:#eef1ff;
+    --ink-dim:#9aa3c7;
+    --line:rgba(255,255,255,0.08);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--bg-0);
+    color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+
+  .mono{font-family:'JetBrains Mono', monospace;}
+
+  /* ===== Background circuit canvas ===== */
+  #bgCanvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    opacity:0.55;
+  }
+
+  .grain{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background-image:radial-gradient(circle at 20% 20%, rgba(139,92,246,0.12), transparent 40%),
+                      radial-gradient(circle at 80% 70%, rgba(61,242,224,0.10), transparent 40%);
+  }
+
+  main{position:relative; z-index:2;}
+
+  /* ===== Nav ===== */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 6%;
+    backdrop-filter:blur(10px);
+    background:linear-gradient(to bottom, rgba(7,9,20,0.85), transparent);
+  }
+  .logo-mark{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Cairo', sans-serif; font-weight:800; font-size:1.05rem;
+    letter-spacing:0.5px;
+  }
+  .logo-mark span.bracket{color:var(--cyan); font-family:'JetBrains Mono', monospace;}
+  .nav-cta{
+    background:var(--cyan);
+    color:#06121a;
+    font-weight:700;
+    font-size:0.85rem;
+    padding:9px 20px;
+    border-radius:999px;
+    text-decoration:none;
+    box-shadow:0 0 0 0 rgba(61,242,224,0.5);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .nav-cta:hover{transform:translateY(-1px) scale(1.03); box-shadow:0 6px 24px -4px rgba(61,242,224,0.55);}
+
+  /* ===== Hero ===== */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:140px 6% 100px;
+    position:relative;
+  }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    letter-spacing:3px;
+    color:var(--cyan);
+    text-transform:uppercase;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:28px;
+    opacity:0;
+    animation:fadeUp .7s ease forwards;
+    animation-delay:.1s;
+  }
+  .eyebrow::before, .eyebrow::after{
+    content:'';
+    width:28px; height:1px;
+    background:linear-gradient(90deg, transparent, var(--cyan));
+  }
+  .eyebrow::after{background:linear-gradient(90deg, var(--cyan), transparent);}
+
+  h1.hero-title{
+    font-family:'Cairo', sans-serif;
+    font-weight:900;
+    font-size:clamp(2.6rem, 7vw, 5.2rem);
+    line-height:1.15;
+    letter-spacing:-1px;
+    opacity:0;
+    animation:fadeUp .8s ease forwards;
+    animation-delay:.25s;
+  }
+  h1.hero-title .glow{
+    background:linear-gradient(95deg, var(--cyan), var(--violet) 55%, var(--pink));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .hero-sub{
+    margin-top:26px;
+    max-width:680px;
+    font-size:clamp(1rem, 2vw, 1.25rem);
+    color:var(--ink-dim);
+    line-height:1.9;
+    opacity:0;
+    animation:fadeUp .8s ease forwards;
+    animation-delay:.4s;
+  }
+
+  .hero-actions{
+    margin-top:44px;
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    justify-content:center;
+    opacity:0;
+    animation:fadeUp .8s ease forwards;
+    animation-delay:.55s;
+  }
+
+  .btn-primary{
+    background:linear-gradient(95deg, var(--cyan), #2fd9c4);
+    color:#04161a;
+    font-weight:800;
+    font-size:1rem;
+    padding:16px 36px;
+    border-radius:999px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    position:relative;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+    box-shadow:0 10px 30px -8px rgba(61,242,224,0.45);
+  }
+  .btn-primary:hover{transform:translateY(-3px); box-shadow:0 16px 40px -8px rgba(61,242,224,0.6);}
+  .btn-primary svg{width:20px; height:20px; flex-shrink:0;}
+
+  .btn-ghost{
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-weight:600;
+    font-size:0.95rem;
+    padding:16px 30px;
+    border-radius:999px;
+    text-decoration:none;
+    transition:border-color .3s ease, background .3s ease;
+  }
+  .btn-ghost:hover{border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.04);}
+
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(22px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .hero-sub{margin-bottom:60px;}
+
+  .scroll-hint{
+    position:absolute;
+    bottom:36px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-dim);
+    letter-spacing:2px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    opacity:0;
+    animation:fadeUp .8s ease forwards;
+    animation-delay:1s;
+  }
+  .scroll-hint .dot{
+    width:6px; height:6px; border-radius:50%; background:var(--cyan);
+    animation:bounce 1.6s ease-in-out infinite;
+  }
+  @keyframes bounce{0%,100%{transform:translateY(0); opacity:1;} 50%{transform:translateY(10px); opacity:0.3;}}
+
+  /* ===== Section generic ===== */
+  section{
+    padding:110px 6%;
+    position:relative;
+  }
+  .section-head{
+    text-align:center;
+    max-width:720px;
+    margin:0 auto 64px;
+  }
+  .tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.75rem;
+    color:var(--violet);
+    letter-spacing:3px;
+    text-transform:uppercase;
+    margin-bottom:14px;
+    display:block;
+  }
+  .section-title{
+    font-family:'Cairo', sans-serif;
+    font-weight:800;
+    font-size:clamp(1.8rem, 4vw, 2.6rem);
+    margin-bottom:18px;
+  }
+  .section-sub{
+    color:var(--ink-dim);
+    font-size:1.05rem;
+    line-height:1.85;
+  }
+
+  .reveal{
+    opacity:0;
+    transform:translateY(30px);
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .reveal.show{opacity:1; transform:translateY(0);}
+
+  /* ===== About track ===== */
+  .about-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:48px;
+    max-width:1100px;
+    margin:0 auto;
+    align-items:center;
+  }
+  .about-card{
+    background:linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:40px;
+  }
+  .about-card p{
+    color:var(--ink-dim);
+    line-height:2;
+    font-size:1.02rem;
+  }
+  .about-card p + p{margin-top:18px;}
+  .about-card strong{color:var(--cyan); font-weight:700;}
+
+  .pillar-list{display:flex; flex-direction:column; gap:18px;}
+  .pillar{
+    display:flex;
+    align-items:flex-start;
+    gap:18px;
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px 22px;
+    transition:border-color .3s ease, transform .3s ease;
+  }
+  .pillar:hover{border-color:rgba(61,242,224,0.35); transform:translateX(-4px);}
+  [dir="rtl"] .pillar:hover{transform:translateX(4px);}
+  .pillar-icon{
+    flex-shrink:0;
+    width:46px; height:46px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(61,242,224,0.1);
+    color:var(--cyan);
+  }
+  .pillar-icon svg{width:24px; height:24px;}
+  .pillar h4{font-family:'Cairo',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:6px;}
+  .pillar p{color:var(--ink-dim); font-size:0.92rem; line-height:1.7;}
+
+  /* ===== Circuit / subjects network ===== */
+  .network-wrap{
+    max-width:1100px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:48px;
+  }
+  .year-label{
+    font-family:'Cairo', sans-serif;
+    font-weight:700;
+    font-size:1.1rem;
+    margin-bottom:22px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .year-label span.mono{
+    color:var(--cyan);
+    font-size:0.95rem;
+    background:rgba(61,242,224,0.1);
+    border-radius:8px;
+    padding:4px 10px;
+  }
+  .node-grid{
+    display:grid;
+    gap:22px;
+  }
+  .node-grid-4{grid-template-columns:repeat(4, 1fr);}
+  .node-grid-2{grid-template-columns:repeat(2, 1fr);}
+  .node{
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:30px 22px;
+    text-align:center;
+    position:relative;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s ease, background .35s ease;
+  }
+  .node::before{
+    content:'';
+    position:absolute; inset:0;
+    border-radius:20px;
+    background:linear-gradient(160deg, rgba(61,242,224,0.08), rgba(139,92,246,0.08));
+    opacity:0;
+    transition:opacity .35s ease;
+  }
+  .node:hover{transform:translateY(-8px); border-color:rgba(139,92,246,0.4);}
+  .node:hover::before{opacity:1;}
+  .node-icon{
+    width:54px; height:54px;
+    margin:0 auto 18px;
+    border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.6rem;
+    background:linear-gradient(135deg, rgba(61,242,224,0.15), rgba(139,92,246,0.15));
+    position:relative; z-index:1;
+  }
+  .node h4{font-family:'Cairo',sans-serif; font-weight:700; font-size:1.05rem; position:relative; z-index:1;}
+  .node p{color:var(--ink-dim); font-size:0.85rem; line-height:1.6; margin-top:8px; position:relative; z-index:1;}
+
+  /* ===== Group section ===== */
+  .group-section{
+    background:radial-gradient(circle at 50% 0%, rgba(139,92,246,0.12), transparent 60%);
+  }
+  .group-grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:50px;
+    max-width:1100px;
+    margin:0 auto;
+    align-items:start;
+  }
+  .feature-row{
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    padding:18px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .feature-row:last-child{border-bottom:none;}
+  .feature-num{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--cyan);
+    font-weight:700;
+    font-size:0.95rem;
+    flex-shrink:0;
+    width:30px;
+  }
+  .feature-row h4{font-family:'Cairo',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:6px;}
+  .feature-row p{color:var(--ink-dim); font-size:0.92rem; line-height:1.75;}
+
+  .rules-card{
+    background:linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    border:1px solid rgba(255,95,162,0.25);
+    border-radius:24px;
+    padding:34px;
+  }
+  .rules-card .rules-title{
+    display:flex; align-items:center; gap:12px;
+    font-family:'Cairo',sans-serif; font-weight:800; font-size:1.2rem;
+    margin-bottom:22px;
+    color:var(--pink);
+  }
+  .rules-card .rules-title svg{width:24px; height:24px;}
+  .rules-card ul{list-style:none; display:flex; flex-direction:column; gap:16px;}
+  .rules-card li{
+    display:flex; gap:12px; align-items:flex-start;
+    color:var(--ink-dim);
+    font-size:0.93rem;
+    line-height:1.7;
+  }
+  .rules-card li svg{width:18px; height:18px; flex-shrink:0; margin-top:2px; color:var(--cyan);}
+  .rules-card li strong{color:var(--ink); font-weight:700;}
+
+  /* ===== CTA ===== */
+  .cta-section{
+    text-align:center;
+    padding:140px 6%;
+    position:relative;
+  }
+  .cta-box{
+    max-width:780px;
+    margin:0 auto;
+    background:linear-gradient(160deg, rgba(61,242,224,0.08), rgba(139,92,246,0.08));
+    border:1px solid var(--line);
+    border-radius:32px;
+    padding:64px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-box::before{
+    content:'';
+    position:absolute;
+    width:300px; height:300px;
+    background:var(--cyan);
+    filter:blur(120px);
+    opacity:0.15;
+    top:-100px; right:-100px;
+  }
+  .cta-title{
+    font-family:'Cairo', sans-serif;
+    font-weight:900;
+    font-size:clamp(1.8rem, 4vw, 2.6rem);
+    margin-bottom:18px;
+    position:relative; z-index:1;
+  }
+  .cta-sub{
+    color:var(--ink-dim);
+    margin-bottom:36px;
+    font-size:1.05rem;
+    position:relative; z-index:1;
+  }
+  .wa-link-box{
+    display:inline-flex;
+    align-items:center;
+    gap:14px;
+    background:rgba(0,0,0,0.25);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 8px 8px 22px;
+    margin-top:8px;
+    position:relative; z-index:1;
+  }
+  .wa-link-box span{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem;
+    color:var(--ink-dim);
+    direction:ltr;
+  }
+
+  footer{
+    text-align:center;
+    padding:40px 6% 50px;
+    color:var(--ink-dim);
+    font-size:0.85rem;
+    border-top:1px solid var(--line);
+    position:relative; z-index:2;
+  }
+
+  /* Responsive */
+  @media (max-width:900px){
+    .about-grid{grid-template-columns:1fr; gap:32px;}
+    .node-grid-4{grid-template-columns:repeat(2, 1fr);}
+    .group-grid{grid-template-columns:1fr; gap:36px;}
+  }
+  @media (max-width:560px){
+    .node-grid-4{grid-template-columns:1fr 1fr; gap:14px;}
+    .node-grid-2{grid-template-columns:1fr; gap:14px;}
+    .node{padding:22px 14px;}
+    section{padding:80px 6%;}
+    .hero{padding:130px 6% 80px;}
+    .about-card, .rules-card{padding:26px;}
+  }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--cyan);
+    outline-offset:3px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="grain"></div>
+
+<nav>
+  <div class="logo-mark">
+    <span class="bracket">&lt;</span>هندسة وعلوم حاسب<span class="bracket">/&gt;</span>
+  </div>
+  <a class="nav-cta" href="https://chat.whatsapp.com/Fb6hMKF5aYZKjkmfOFhMZk?s=cl&p=a&mlu=1" target="_blank" rel="noopener">انضم للجروب</a>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <span class="eyebrow mono">CS · ENGINEERING · MATH</span>
+    <h1 class="hero-title">
+      مسار <span class="glow">هندسة وعلوم حاسب</span><br>
+      رحلتك من أول خط كود
+    </h1>
+    <p class="hero-sub">
+      صفحة بسيطة بتعرّفك بالمسار اللي اخترته، وبتجمعنا في جروب واحد نتذاكر فيه،
+      نتبادل ملخصات، ونساعد بعض من غير أي تجاوزات أو كلام فاضي.
+    </p>
+    <div class="scroll-hint mono">
+      <span>اسكرول</span>
+      <span class="dot"></span>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-head reveal">
+      <span class="tag mono">عن المسار</span>
+      <h2 class="section-title">إنت بقى بتدرس إيه؟</h2>
+      <p class="section-sub">
+        مسار "هندسة وعلوم حاسب" مزيج بين دماغ الرياضيات الهندسية ودماغ البرمجة والخوارزميات،
+        وده بالظبط اللي يخليه من أقوى المسارات اللي تخرجك جاهز لسوق التكنولوجيا.
+      </p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-card reveal">
+        <p>
+          المسار بيجمع لك بين <strong>الأساس الهندسي</strong> (دوائر، أنظمة، رياضة تطبيقية)
+          و<strong>الأساس الحاسوبي</strong> (برمجة، خوارزميات، هياكل بيانات، أنظمة تشغيل).
+        </p>
+        <p>
+          يعني مش بس هتتعلم تكتب كود، هتفهم كمان إزاي الجهاز نفسه بيفكر وبيعالج المعلومة من جواه،
+          وده اللي بيفرقك في أي مقابلة شغل أو مشروع تخرج.
+        </p>
+        <p>
+          أول سنتين بيكونوا أساسيات مكثفة (رياضة، فيزياء، برمجة)، وبعدين بتتفرع للتخصصات
+          زي الذكاء الاصطناعي، أمن المعلومات، أو هندسة الأنظمة.
+        </p>
+      </div>
+
+      <div class="pillar-list">
+        <div class="pillar reveal">
+          <div class="pillar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div>
+          <div>
+            <h4>برمجة وخوارزميات</h4>
+            <p>من أول سطر كود لحد بناء أنظمة معقدة، بتتعلم تفكر بمنطق، مش بس تحفظ.</p>
+          </div>
+        </div>
+        <div class="pillar reveal">
+          <div class="pillar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+          <div>
+            <h4>أنظمة وهاردوير</h4>
+            <p>تفهم الدوائر المنطقية والمعالج وإزاي البرنامج بيتحول لتعليمات يفهمها الجهاز.</p>
+          </div>
+        </div>
+        <div class="pillar reveal">
+          <div class="pillar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 14l4-4 4 4 4-7"/></svg></div>
+          <div>
+            <h4>رياضة تطبيقية</h4>
+            <p>تفاضل وتكامل، جبر خطي، إحصاء — كل ده أساس بناء أي خوارزمية أو موديل ذكاء اصطناعي.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NETWORK / SUBJECTS -->
+  <section>
+    <div class="section-head reveal">
+      <span class="tag mono">شروط القبول</span>
+      <h2 class="section-title">المواد اللي عليها القبول في المسار</h2>
+      <p class="section-sub">دي المواد اللي درجاتها بتتحسب لدخول المسار، من ثانية وتالتة ثانوي.</p>
+    </div>
+
+    <div class="network-wrap">
+      <div class="year-group reveal">
+        <h3 class="year-label"><span class="mono">02</span> تانية ثانوي</h3>
+        <div class="node-grid node-grid-4">
+          <div class="node">
+            <div class="node-icon">💻</div>
+            <h4>برمجة</h4>
+          </div>
+          <div class="node">
+            <div class="node-icon">🇬🇧</div>
+            <h4>انجليزي</h4>
+          </div>
+          <div class="node">
+            <div class="node-icon">📜</div>
+            <h4>تاريخ</h4>
+          </div>
+          <div class="node">
+            <div class="node-icon">📖</div>
+            <h4>عربي</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="year-group reveal">
+        <h3 class="year-label"><span class="mono">03</span> تالتة ثانوي</h3>
+        <div class="node-grid node-grid-2">
+          <div class="node">
+            <div class="node-icon">📐</div>
+            <h4>رياضة مستوى رفيع</h4>
+          </div>
+          <div class="node">
+            <div class="node-icon">⚛️</div>
+            <h4>فيزياء مستوى رفيع</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GROUP -->
+  <section class="group-section" id="group">
+    <div class="section-head reveal">
+      <span class="tag mono">الجروب</span>
+      <h2 class="section-title">نتذاكر سوا، صح؟</h2>
+      <p class="section-sub">جروب واتساب واحد لطلبة المسار، هدفه يسهّل عليك المذاكرة ويوصلك ملخصات بدل ما تدوّر لوحدك.</p>
+    </div>
+
+    <div class="group-grid">
+      <div class="reveal">
+        <div class="feature-row">
+          <span class="feature-num mono">01</span>
+          <div>
+            <h4>ملخصات مرتبة</h4>
+            <p>كل واحد بيرفع اللي عنده، ملازم، شيتات، حل امتحانات سابقة، عشان محدش يبدأ من الصفر.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <span class="feature-num mono">02</span>
+          <div>
+            <h4>نقاش في أي مادة</h4>
+            <p>عندك سؤال في تكليف برمجة أو مذاكرة دوائر؟ اسأل وهتلاقي حد يرد عليك.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <span class="feature-num mono">03</span>
+          <div>
+            <h4>تحديثات وموادعد</h4>
+            <p>مواعيد امتحانات، تسليمات، أو أي حاجة مهمة بتخص المسار بتوصل للكل في نفس الوقت.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <span class="feature-num mono">04</span>
+          <div>
+            <h4>مساحة محترمة</h4>
+            <p>الهدف الأساسي هو الدراسة والتعاون، من غير أي كلام أو محتوى مش مناسب.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-card reveal">
+        <div class="rules-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          قوانين الجروب
+        </div>
+        <ul>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span><strong>ممنوع أي تجاوزات</strong> — الجروب مساحة دراسية بس، أي محتوى أو سلوك غير مناسب هيتم التعامل معه فورًا.</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span><strong>احترام الكل</strong> — اختلاف الرأي طبيعي، بس الأسلوب لازم يفضل محترم مع الجميع.</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span><strong>المحتوى متعلق بالمسار</strong> — رسايل، أسئلة، ملخصات خاصة بالمواد والدراسة.</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span><strong>من غير سبام</strong> — متجنب تكرار الرسايل أو إرسال نفس المحتوى أكتر من مرة.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="join">
+    <div class="cta-box reveal">
+      <h2 class="cta-title">يلا بينا، انضم دلوقتي</h2>
+      <p class="cta-sub">دوس على الزرار وانضم لجروب طلبة هندسة وعلوم حاسب، وابدأ تتذاكر مع الناس اللي فاهماك.</p>
+      <a class="btn-primary" href="https://chat.whatsapp.com/Fb6hMKF5aYZKjkmfOFhMZk?s=cl&p=a&mlu=1" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.149-.15.345-.39.523-.585.18-.195.24-.345.36-.57.12-.226.06-.42-.03-.585-.09-.165-.81-1.95-1.11-2.67-.3-.72-.6-.62-.825-.63-.21-.01-.45-.01-.69-.01-.24 0-.63.09-.96.45-.33.36-1.26 1.23-1.26 3.002 0 1.771 1.29 3.48 1.47 3.72.18.236 2.49 3.795 6.03 5.171 3.54 1.376 3.54.916 4.17.86.63-.06 2.04-.836 2.34-1.642.3-.81.3-1.5.21-1.642-.09-.146-.3-.226-.6-.376z"/><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.78.47 3.46 1.29 4.91L2 22l5.27-1.34a9.94 9.94 0 0 0 4.77 1.21h.01c5.5 0 9.96-4.46 9.96-9.96 0-5.5-4.46-9.91-9.97-9.91zm0 18.1c-1.55 0-3.06-.42-4.38-1.21l-.31-.19-3.13.8.83-3.04-.2-.31a8.27 8.27 0 0 1-1.27-4.39c0-4.55 3.71-8.26 8.27-8.26 4.55 0 8.26 3.71 8.26 8.26 0 4.55-3.71 8.34-8.27 8.34z"/></svg>
+        دخول جروب الواتساب
+      </a>
+      <div><span class="wa-link-box mono">chat.whatsapp.com/Fb6hMKF5aYZKjkmfOFhMZk</span></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  مسار هندسة وعلوم حاسب — جروب مذاكرة وتعاون بين الطلبة فقط
+</footer>
+
+<script>
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('show');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.15});
+  revealEls.forEach(el=>observer.observe(el));
+
+  // Circuit-style animated background
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, nodes = [];
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const NODE_COUNT = Math.min(38, Math.floor((window.innerWidth * window.innerHeight) / 38000));
+  for(let i=0;i<NODE_COUNT;i++){
+    nodes.push({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      vx: (Math.random()-0.5)*0.25,
+      vy: (Math.random()-0.5)*0.25,
+      r: Math.random()*1.6+1
+    });
+  }
+
+  const MAX_DIST = 170;
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+
+    for(let i=0;i<nodes.length;i++){
+      const n = nodes[i];
+      if(!prefersReduced){
+        n.x += n.vx;
+        n.y += n.vy;
+        if(n.x<0||n.x>w) n.vx*=-1;
+        if(n.y<0||n.y>h) n.vy*=-1;
+      }
+    }
+
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const a = nodes[i], b = nodes[j];
+        const dx = a.x-b.x, dy = a.y-b.y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if(dist < MAX_DIST){
+          const opacity = (1 - dist/MAX_DIST) * 0.22;
+          ctx.strokeStyle = `rgba(61,242,224,${opacity})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    for(const n of nodes){
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(139,92,246,0.55)';
+      ctx.fill();
+    }
+
+    if(!prefersReduced){
+      requestAnimationFrame(draw);
+    }
+  }
+  draw();
+</script>
+
+</body>
+</html>
